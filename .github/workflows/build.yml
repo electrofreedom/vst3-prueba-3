@@ -1,0 +1,19 @@
+name: build
+on: [push, pull_request, workflow_dispatch]
+
+jobs:
+  windows-vst3:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configurar
+        run: cmake -S . -B build -G "Visual Studio 17 2022" -A x64
+      - name: Compilar VST3 y pruebas
+        run: cmake --build build --config Release --target ReverseVocalReverbTests ReverseVocalReverbProcessorTest ReverseVocalReverb_VST3 --parallel
+      - name: Pruebas
+        run: ctest --test-dir build -C Release --output-on-failure
+      - name: Subir VST3
+        uses: actions/upload-artifact@v4
+        with:
+          name: ReverseVocalReverb-VST3-win64
+          path: build/ReverseVocalReverb_artefacts/Release/VST3/Reverse Vocal Reverb.vst3
